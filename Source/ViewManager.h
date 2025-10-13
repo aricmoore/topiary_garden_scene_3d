@@ -18,28 +18,48 @@
 class ViewManager
 {
 public:
-	// constructor
+	// Constructor
 	ViewManager(
 		ShaderManager* pShaderManager);
-	// destructor
+	// Destructor
 	~ViewManager();
 
-	// mouse position callback for mouse interaction with the 3D scene
-	static void Mouse_Position_Callback(GLFWwindow* window, double xMousePos, double yMousePos);
+	// Camera object pointer:
+	// The camera was added here (instead of being managed as a global) 
+	// so that ViewManager can directly handle input and update camera 
+	// state (position, orientation, projection mode) as part of managing 
+	// the view. This encapsulates scene interaction logic in one place.
+	Camera* m_pCamera;
+
+	// Mouse position callback for mouse interaction with the 3D scene
+	static void MouseCallback(GLFWwindow* window, double xMousePos, double yMousePos);
+
+	// Scroll callback for zooming in and out
+	static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
-	// pointer to shader manager object
+	// For mouse movement
+	float lastX;
+	float lastY;
+	bool firstMouse;
+	float movementSpeedFactor;     // speed factor adjustable with scroll
+	bool bOrthographicProjection;  // true = orthographic, false = perspective
+
+	// Pointer to shader manager object
 	ShaderManager* m_pShaderManager;
-	// active OpenGL display window
+	// Active OpenGL display window
 	GLFWwindow* m_pWindow;
 
-	// process keyboard events for interaction with the 3D scene
-	void ProcessKeyboardEvents();
-
 public:
-	// create the initial OpenGL display window
+	// Create the initial OpenGL display window
 	GLFWwindow* CreateDisplayWindow(const char* windowTitle);
 	
-	// prepare the conversion from 3D object display to 2D scene display
+	// Prepare the conversion from 3D object display to 2D scene display
 	void PrepareSceneView();
+
+	// Process keyboard events for interaction with the 3D scene
+	void ProcessKeyboardEvents(float deltaTime);
+
+	// Returns true if orthographic projection is enabled, false if perspective
+	bool IsOrthographicProjection() const { return bOrthographicProjection; }
 };

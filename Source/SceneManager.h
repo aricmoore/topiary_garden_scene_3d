@@ -15,6 +15,10 @@
 #include <string>
 #include <vector>
 
+#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+
 /***********************************************************
  *  SceneManager
  *
@@ -102,6 +106,12 @@ public:
 	// The following methods are for the students to 
 	// customize for their own 3D scene
 	void PrepareScene();
-	void RenderScene();
-
+	void DefineObjectMaterials();
+	void SetupSceneLights();
+	void RenderScene(bool bOrthographic);
+	void DrawCylinderWithSphereTip(glm::vec3 basePos, float cylinderHeight, float cylinderRadius);
+	void DrawRectangularHedge(glm::vec3 centerPos, float length, float width, float height);
+	void DrawHedgeWall(glm::vec3 centerPos, glm::vec3 scaleXYZ, const char* textureName, float uvX, float uvY);
+	// loads textures from image files
+	void LoadSceneTextures();
 };

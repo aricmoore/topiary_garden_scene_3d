@@ -18,7 +18,7 @@
 namespace
 {
 	// Macro for window title
-	const char* const WINDOW_TITLE = "7-1 FinalProject and Milestones"; 
+	const char* const WINDOW_TITLE = "7-1 FinalProject and Milestones (Arielle Moore)"; 
 
 	// Main GLFW window
 	GLFWwindow* g_Window = nullptr;
@@ -60,11 +60,26 @@ int main(int argc, char* argv[])
 	// try to create the main display window
 	g_Window = g_ViewManager->CreateDisplayWindow(WINDOW_TITLE);
 
+	// Capture and hide the mouse cursor inside the window for FPS-style control
+	glfwSetInputMode(g_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	// Register a callback for mouse movement
+	glfwSetCursorPosCallback(g_Window, [](GLFWwindow* window, double xpos, double ypos) {
+		g_ViewManager->MouseCallback(window, xpos, ypos);
+	});
+
+	// Register a callback for mouse scroll
+	glfwSetScrollCallback(g_Window, [](GLFWwindow* window, double xoffset, double yoffset) {
+		g_ViewManager->ScrollCallback(window, xoffset, yoffset);
+	});
+
 	// if GLEW fails initialization, then terminate the application
 	if (InitializeGLEW() == false)
 	{
 		return(EXIT_FAILURE);
 	}
+
+	std::cout << "Loading shader from: " << "../../Utilities/shaders/vertexShader.glsl" << std::endl;
 
 	// load the shader code from the external GLSL files
 	g_ShaderManager->LoadShaders(
@@ -76,10 +91,21 @@ int main(int argc, char* argv[])
 	g_SceneManager = new SceneManager(g_ShaderManager);
 	g_SceneManager->PrepareScene();
 
+	// to track deltaTime
+	float lastFrame = 0.0f;
+
 	// loop will keep running until the application is closed 
 	// or until an error has occurred
 	while (!glfwWindowShouldClose(g_Window))
 	{
+		// Calculate delta time of current frame
+		float currentFrame = glfwGetTime();
+		float deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		// Process keyboard input
+		g_ViewManager->ProcessKeyboardEvents(deltaTime);
+
 		// Enable z-depth
 		glEnable(GL_DEPTH_TEST);
 
@@ -91,7 +117,7 @@ int main(int argc, char* argv[])
 		g_ViewManager->PrepareSceneView();
 
 		// refresh the 3D scene
-		g_SceneManager->RenderScene();
+		g_SceneManager->RenderScene(g_ViewManager->IsOrthographicProjection());
 
 
 		// Flips the the back buffer with the front buffer every frame.
